@@ -1,0 +1,204 @@
+<?php
+
+session_start();
+
+if (!isset($_SESSION['admin'])) {
+    header("Location:login.php");
+    exit();
+}
+
+include "../includes/config.php";
+
+$id = $_GET['id'];
+
+$result = mysqli_query($conn, "SELECT * FROM vehicles WHERE id='$id'");
+
+$row = mysqli_fetch_assoc($result);
+
+if (isset($_POST['update_vehicle'])) {
+
+    $vehicle_name = $_POST['vehicle_name'];
+    $vehicle_type = $_POST['vehicle_type'];
+    $brand = $_POST['brand'];
+    $fuel_type = $_POST['fuel_type'];
+    $transmission = $_POST['transmission'];
+    $price_per_km = $_POST['price_per_km'];
+
+    $pickup_location = $_POST['pickup_location'];
+
+    $status = $_POST['status'];
+
+    $description = $_POST['description'];
+
+    if ($_FILES['vehicle_image']['name'] != "") {
+
+        $image = $_FILES['vehicle_image']['name'];
+        $tmp = $_FILES['vehicle_image']['tmp_name'];
+
+        move_uploaded_file($tmp, "../uploads/vehicles/" . $image);
+
+        mysqli_query($conn, "UPDATE vehicles SET
+
+        vehicle_name='$vehicle_name',
+        vehicle_type='$vehicle_type',
+        brand='$brand',
+        fuel_type='$fuel_type',
+        transmission='$transmission',
+        price_per_km='$price_per_km',
+        pickup_location='$pickup_location',
+        status='$status',
+        vehicle_image='$image',
+        description='$description'
+
+        WHERE id='$id'");
+
+    } else {
+
+        mysqli_query($conn, "UPDATE vehicles SET
+
+        vehicle_name='$vehicle_name',
+        vehicle_type='$vehicle_type',
+        brand='$brand',
+        fuel_type='$fuel_type',
+        transmission='$transmission',
+        price_per_km='$price_per_km',
+        pickup_location='$pickup_location',
+        status='$status',
+        description='$description'
+        WHERE id='$id'");
+
+    }
+
+    echo "<script>alert('Vehicle Updated Successfully');</script>";
+
+    echo "<script>window.location='manage_vehicle.php';</script>";
+
+}
+
+?>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Edit Vehicle</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <section class="register">
+
+        <div class="register-container">
+
+            <h2>Edit Vehicle</h2>
+
+            <form method="POST" enctype="multipart/form-data">
+
+                <label>Vehicle Name</label>
+
+                <input type="text" name="vehicle_name" value="<?php echo $row['vehicle_name']; ?>" required>
+
+                <label>Vehicle Type</label>
+
+                <select name="vehicle_type">
+
+                    <option value="Car" <?php if ($row['vehicle_type'] == "Car")
+                        echo "selected"; ?>>Car</option>
+
+                    <option value="Bike" <?php if ($row['vehicle_type'] == "Bike")
+                        echo "selected"; ?>>Bike</option>
+
+                </select>
+
+                <label>Brand</label>
+
+                <input type="text" name="brand" value="<?php echo $row['brand']; ?>" required>
+
+                <label>Fuel Type</label>
+
+                <input type="text" name="fuel_type" value="<?php echo $row['fuel_type']; ?>" required>
+
+                <label>Transmission</label>
+
+                <select name="transmission">
+
+                    <option value="Manual" <?php if ($row['transmission'] == "Manual")
+                        echo "selected"; ?>>Manual</option>
+
+                    <option value="Automatic" <?php if ($row['transmission'] == "Automatic")
+                        echo "selected"; ?>>Automatic
+                    </option>
+
+                </select>
+
+                <label>Price Per KM</label>
+
+                <input type="number" name="price_per_km" value="<?php echo $row['price_per_km']; ?>" required>
+
+                <label>Pickup Location</label>
+
+                <input type="text" name="pickup_location" value="<?php echo $row['pickup_location']; ?>" required>
+
+                <label>Availability</label>
+
+                <select name="status">
+
+                    <option value="Available" <?php if ($row['status'] == "Available")
+                        echo "selected"; ?>>
+                        Available
+                    </option>
+
+                    <option value="Unavailable" <?php if ($row['status'] == "Unavailable")
+                        echo "selected"; ?>>
+                        Unavailable
+                    </option>
+
+                </select>
+
+                <label>Current Image</label>
+
+                <br><br>
+
+                <img src="../uploads/vehicles/<?php echo $row['vehicle_image']; ?>" width="180">
+
+                <br><br>
+
+                <label>Change Image (Optional)</label>
+
+                <input type="file" name="vehicle_image">
+
+                <label>Description</label>
+
+                <textarea name="description" rows="5"><?php echo $row['description']; ?></textarea>
+
+                <br><br>
+
+                <button type="submit" name="update_vehicle">
+
+                    Update Vehicle
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</body>
+
+</html>
