@@ -25,12 +25,9 @@ if (isset($_POST['add_vehicle'])) {
     $status          = trim($_POST['status']);
     $description     = trim($_POST['description']);
 
-    // ---------- Validate the uploaded image (this is the part that used
-    // to crash the page with no useful message) ----------
     $uploadDir = __DIR__ . "/../uploads/vehicles/";
 
     if (!is_dir($uploadDir)) {
-        // Auto-create the folder instead of failing if it happens to be missing
         mkdir($uploadDir, 0777, true);
     }
 
@@ -39,7 +36,6 @@ if (isset($_POST['add_vehicle'])) {
     if (!isset($_FILES['vehicle_image']) || $_FILES['vehicle_image']['error'] === UPLOAD_ERR_NO_FILE) {
         $errors[] = "Please choose a vehicle image.";
     } elseif ($_FILES['vehicle_image']['error'] !== UPLOAD_ERR_OK) {
-        // Give a real reason instead of a blank/failed page
         $uploadErrors = [
             UPLOAD_ERR_INI_SIZE   => "Image is larger than this server allows (upload_max_filesize).",
             UPLOAD_ERR_FORM_SIZE  => "Image is larger than the form allows.",
@@ -59,7 +55,6 @@ if (isset($_POST['add_vehicle'])) {
         } elseif ($_FILES['vehicle_image']['size'] > 5 * 1024 * 1024) {
             $errors[] = "Image must be smaller than 5MB.";
         } else {
-            // Unique filename so two vehicles never overwrite each other's photo
             $image = uniqid('veh_', true) . '.' . $ext;
             $tmp = $_FILES['vehicle_image']['tmp_name'];
 
@@ -78,11 +73,6 @@ if (isset($_POST['add_vehicle'])) {
         $errors[] = "Price per KM must be a valid positive number.";
     }
 
-    // ---------- Insert using a prepared statement ----------
-    // The old version built the SQL by gluing strings together, so a single
-    // apostrophe typed into the name/description/pickup location (e.g.
-    // "Driver's Colony") broke the SQL syntax and crashed the whole request.
-    // A prepared statement removes that failure mode entirely.
     if (empty($errors)) {
         $sql = "INSERT INTO vehicles
                 (vehicle_name, vehicle_type, brand, fuel_type, transmission,
@@ -126,39 +116,32 @@ if (isset($_POST['add_vehicle'])) {
 $activePage = 'add_vehicle';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<?php include "partials_sidebar.php"; ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Vehicle - RentX Admin</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-
-<body>
-
-    <?php include "partials_sidebar.php"; ?>
-
-        <div class="panel-form-card">
-            <h2><i class="fa-solid fa-square-plus"></i> Add New Vehicle</h2>
-            <p class="panel-form-subtitle">Fill in the details below to list a new car or bike.</p>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="bg-primary-subtle text-primary rounded-circle p-3 d-flex align-items-center justify-content-center" style="width:54px; height:54px;">
+                    <i class="fa-solid fa-square-plus fs-3"></i>
+                </div>
+                <div>
+                    <h4 class="fw-extrabold text-dark mb-1">Add New Vehicle to Inventory</h4>
+                    <p class="text-secondary small mb-0">Fill in vehicle specifications, pricing, location, and upload clear photo.</p>
+                </div>
+            </div>
 
             <?php if ($success): ?>
-                <div class="alert alert-success">
-                    <i class="fa-solid fa-circle-check"></i> Vehicle added successfully.
+                <div class="alert alert-success border-0 shadow-sm rounded-3 d-flex align-items-center gap-2 py-3 mb-4">
+                    <i class="fa-solid fa-circle-check fs-4"></i>
+                    <div><strong>Success!</strong> Vehicle has been added to inventory successfully. <a href="manage_vehicles.php" class="alert-link">Manage Fleet →</a></div>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($errors)): ?>
-                <div class="alert alert-error">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <ul>
+                <div class="alert alert-danger border-0 shadow-sm rounded-3 py-3 mb-4">
+                    <div class="d-flex align-items-center gap-2 fw-bold mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Please fix the following errors:</div>
+                    <ul class="mb-0 ps-3">
                         <?php foreach ($errors as $err): ?>
                             <li><?php echo htmlspecialchars($err); ?></li>
                         <?php endforeach; ?>
@@ -166,95 +149,88 @@ $activePage = 'add_vehicle';
                 </div>
             <?php endif; ?>
 
-            <form method="POST" enctype="multipart/form-data" class="panel-form">
-
-                <div class="form-grid">
-                    <div class="form-field">
-                        <label>Vehicle Name</label>
-                        <input type="text" name="vehicle_name" placeholder="e.g. Hyundai Creta" required
-                            value="<?php echo isset($_POST['vehicle_name']) ? htmlspecialchars($_POST['vehicle_name']) : ''; ?>">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-car me-1 text-primary"></i> Vehicle Name</label>
+                        <input type="text" name="vehicle_name" class="form-control form-control-lg fs-6 rounded-3" placeholder="e.g. Honda City i-VTEC" required value="<?php echo isset($_POST['vehicle_name']) ? htmlspecialchars($_POST['vehicle_name']) : ''; ?>">
                     </div>
 
-                    <div class="form-field">
-                        <label>Vehicle Type</label>
-                        <select name="vehicle_type">
-                            <option>Car</option>
-                            <option>Bike</option>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-layer-group me-1 text-primary"></i> Vehicle Category</label>
+                        <select name="vehicle_type" class="form-select form-select-lg fs-6 rounded-3">
+                            <option value="Car" <?php if (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Car') echo 'selected'; ?>>🚗 Car (4-Wheeler)</option>
+                            <option value="Bike" <?php if (isset($_POST['vehicle_type']) && $_POST['vehicle_type'] == 'Bike') echo 'selected'; ?>>🏍️ Bike (2-Wheeler)</option>
                         </select>
                     </div>
 
-                    <div class="form-field">
-                        <label>Brand</label>
-                        <input type="text" name="brand" placeholder="e.g. Hyundai" required
-                            value="<?php echo isset($_POST['brand']) ? htmlspecialchars($_POST['brand']) : ''; ?>">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-building me-1 text-primary"></i> Brand / Manufacturer</label>
+                        <input type="text" name="brand" class="form-control form-control-lg fs-6 rounded-3" placeholder="e.g. Honda, Hyundai, Royal Enfield" required value="<?php echo isset($_POST['brand']) ? htmlspecialchars($_POST['brand']) : ''; ?>">
                     </div>
 
-                    <div class="form-field">
-                        <label>Fuel Type</label>
-                        <input type="text" name="fuel_type" placeholder="e.g. Petrol" required
-                            value="<?php echo isset($_POST['fuel_type']) ? htmlspecialchars($_POST['fuel_type']) : ''; ?>">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-gas-pump me-1 text-primary"></i> Fuel Type</label>
+                        <input type="text" name="fuel_type" class="form-control form-control-lg fs-6 rounded-3" placeholder="e.g. Petrol / EV / Diesel" required value="<?php echo isset($_POST['fuel_type']) ? htmlspecialchars($_POST['fuel_type']) : ''; ?>">
                     </div>
 
-                    <div class="form-field">
-                        <label>Transmission</label>
-                        <select name="transmission">
-                            <option>Manual</option>
-                            <option>Automatic</option>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-gears me-1 text-primary"></i> Transmission</label>
+                        <select name="transmission" class="form-select form-select-lg fs-6 rounded-3">
+                            <option value="Manual">Manual Transmission</option>
+                            <option value="Automatic">Automatic Transmission</option>
                         </select>
                     </div>
 
-                    <div class="form-field">
-                        <label>Price Per KM (₹)</label>
-                        <input type="number" step="0.01" min="0" name="price_per_km" required
-                            value="<?php echo isset($_POST['price_per_km']) ? htmlspecialchars($_POST['price_per_km']) : ''; ?>">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-tag me-1 text-primary"></i> Price Rate (₹ / KM)</label>
+                        <input type="number" step="0.01" min="0" name="price_per_km" class="form-control form-control-lg fs-6 rounded-3" placeholder="18.50" required value="<?php echo isset($_POST['price_per_km']) ? htmlspecialchars($_POST['price_per_km']) : ''; ?>">
                     </div>
 
-                    <div class="form-field">
-                        <label>City</label>
-                        <input type="text" name="city" placeholder="e.g. Gandhinagar" required
-                            value="<?php echo isset($_POST['city']) ? htmlspecialchars($_POST['city']) : ''; ?>">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-city me-1 text-primary"></i> City</label>
+                        <input type="text" name="city" class="form-control form-control-lg fs-6 rounded-3" placeholder="e.g. Metro City" required value="<?php echo isset($_POST['city']) ? htmlspecialchars($_POST['city']) : ''; ?>">
                     </div>
 
-                    <div class="form-field">
-                        <label>Pickup Address</label>
-                        <input type="text" name="pickup_address" placeholder="RentX, Sector 21, Gandhinagar" required
-                            value="<?php echo isset($_POST['pickup_address']) ? htmlspecialchars($_POST['pickup_address']) : ''; ?>">
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-location-dot me-1 text-primary"></i> Pickup Address</label>
+                        <input type="text" name="pickup_address" class="form-control form-control-lg fs-6 rounded-3" placeholder="RentX Hub, Sector 21" required value="<?php echo isset($_POST['pickup_address']) ? htmlspecialchars($_POST['pickup_address']) : ''; ?>">
                     </div>
 
-                    <div class="form-field">
-                        <label>Service Radius (km) <small>optional, default 30</small></label>
-                        <input type="number" min="0" name="service_radius" placeholder="30"
-                            value="<?php echo isset($_POST['service_radius']) ? htmlspecialchars($_POST['service_radius']) : ''; ?>">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-route me-1 text-primary"></i> Service Radius (KM)</label>
+                        <input type="number" min="0" name="service_radius" class="form-control form-control-lg fs-6 rounded-3" placeholder="30" value="<?php echo isset($_POST['service_radius']) ? htmlspecialchars($_POST['service_radius']) : '30'; ?>">
                     </div>
 
-                    <div class="form-field">
-                        <label>Availability</label>
-                        <select name="status">
-                            <option value="Available">Available</option>
-                            <option value="Booked">Booked</option>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-toggle-on me-1 text-primary"></i> Status</label>
+                        <select name="status" class="form-select form-select-lg fs-6 rounded-3">
+                            <option value="Available">🟢 Available for Booking</option>
+                            <option value="Booked">🔴 Booked / Unavailable</option>
                         </select>
                     </div>
 
-                    <div class="form-field">
-                        <label>Vehicle Image <small>(JPG/PNG/WEBP, max 5MB)</small></label>
-                        <input type="file" name="vehicle_image" accept=".jpg,.jpeg,.png,.webp" required>
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-image me-1 text-primary"></i> Upload Vehicle Photo (JPG/PNG/WEBP)</label>
+                        <input type="file" name="vehicle_image" class="form-control form-control-lg fs-6 rounded-3" accept=".jpg,.jpeg,.png,.webp" required>
                     </div>
 
-                    <div class="form-field form-field-full">
-                        <label>Description</label>
-                        <textarea name="description" rows="4"><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold text-secondary fs-7 mb-1"><i class="fa-solid fa-align-left me-1 text-primary"></i> Vehicle Description</label>
+                        <textarea name="description" class="form-control rounded-3 fs-6" rows="4" placeholder="Mention key vehicle features, seating capacity, AC status..."><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
                     </div>
                 </div>
 
-                <button type="submit" name="add_vehicle" class="panel-submit-btn">
-                    <i class="fa-solid fa-plus"></i> Add Vehicle
-                </button>
-
+                <div class="pt-4 mt-3 border-top d-flex gap-3">
+                    <button type="submit" name="add_vehicle" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm">
+                        <i class="fa-solid fa-plus me-1"></i> Save Vehicle
+                    </button>
+                    <a href="manage_vehicles.php" class="btn btn-outline-secondary btn-lg rounded-pill px-4 fw-semibold">Cancel</a>
+                </div>
             </form>
         </div>
+    </div>
+</div>
 
-    <?php include "partials_end.php"; ?>
+<?php include "partials_end.php"; ?>
 
-</body>
-
-</html>

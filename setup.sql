@@ -16,11 +16,11 @@
 -- DESCRIBE on them and let me know so I can double-check.
 -- =====================================================================
 
-CREATE DATABASE IF NOT EXISTS rentx_fixed
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_general_ci;
-
-USE rentx_fixed;
+-- CREATE DATABASE IF NOT EXISTS rentx_fixed
+--     CHARACTER SET utf8mb4
+--     COLLATE utf8mb4_general_ci;
+-- 
+-- USE rentx_fixed;
 
 -- ---------------------------------------------------------------------
 -- vehicles
@@ -128,3 +128,73 @@ CREATE TABLE IF NOT EXISTS admin (
 INSERT INTO admin (username, password) VALUES
 ('admin', '$2y$10$0dpxLBa9k8jMumtDs6lr0Ospe8PSKlmJ/8bbTOeri438Ke4yplN1u')
 ON DUPLICATE KEY UPDATE username = username;
+
+-- ---------------------------------------------------------------------
+-- reviews
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS reviews (
+    id              INT(11)         NOT NULL AUTO_INCREMENT,
+    booking_id      INT(11)         DEFAULT NULL,
+    vehicle_id      INT(11)         NOT NULL,
+    user_id         INT(11)         NOT NULL,
+    rating          INT(1)          NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment         TEXT            NOT NULL,
+    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY vehicle_id (vehicle_id),
+    KEY user_id (user_id),
+    CONSTRAINT fk_reviews_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
+    CONSTRAINT fk_reviews_user    FOREIGN KEY (user_id)    REFERENCES users(id)    ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+-- vehicle_images
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS vehicle_images (
+    id              INT(11)         NOT NULL AUTO_INCREMENT,
+    vehicle_id      INT(11)         NOT NULL,
+    image_path      VARCHAR(255)    NOT NULL,
+    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY vehicle_id (vehicle_id),
+    CONSTRAINT fk_images_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+-- Schema migrations for existing tables
+-- ---------------------------------------------------------------------
+SET @dbname = DATABASE();
+SET @tablename = "vehicles";
+SET @columnname = "maintenance_status";
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = @tablename)
+      AND (table_schema = @dbname)
+      AND (column_name = @columnname)
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE vehicles ADD COLUMN maintenance_status ENUM('Available','In Maintenance','Out of Service') DEFAULT 'Available';"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+SET @tablename = "bookings";
+SET @columnname = "add_ons";
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = @tablename)
+      AND (table_schema = @dbname)
+      AND (column_name = @columnname)
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE bookings ADD COLUMN add_ons TEXT NULL, ADD COLUMN insurance_plan VARCHAR(50) DEFAULT 'Basic', ADD COLUMN extra_amount DECIMAL(10,2) DEFAULT 0.00, ADD COLUMN rejection_reason TEXT NULL;"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+

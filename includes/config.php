@@ -1,9 +1,12 @@
 <?php
 
-$servername = "localhost";
-$username   = "root";
-$password   = "";
-$database   = "rentx_fixed";
+// ============================================================
+// InfinityFree Live Production Database Credentials
+// ============================================================
+$servername = "sql307.infinityfree.com";
+$username   = "if0_42729933";
+$password   = "QNpUjQfV2LL";
+$database   = "if0_42729933_rentx_db";
 
 // Use classic "return false on error" mysqli behaviour instead of the
 // PHP 8.1+ default of throwing exceptions on every query error.
