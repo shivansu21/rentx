@@ -3340,7 +3340,7 @@ body.dark-theme .gender-toggle-group .btn-check+.btn {
 }
 
 /* ==========================================================================
-   INTERACTIVE RUNNING CAR HERO STAGE ANIMATION
+   ELEGANT HERO CAR SHOWCASE STAGE
    ========================================================================== */
 .hero-vehicle-stage {
     background: linear-gradient(145deg, #06111e 0%, #041c16 50%, #070c14 100%) !important;
@@ -3351,89 +3351,46 @@ body.dark-theme .gender-toggle-group .btn-check+.btn {
 .car-drive-wrapper {
     display: inline-block;
     perspective: 1000px;
-    animation: driveRightAcross 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     transform-origin: center center;
+    position: relative;
 }
-
-@keyframes driveRightAcross {
-    0% {
-        transform: translateX(-90%) scale(0.95);
-        opacity: 0.2;
-    }
-
-    15% {
-        transform: translateX(-45%) scale(0.98);
-        opacity: 1;
-    }
-
-    50% {
-        transform: translateX(0%) scale(1);
-        opacity: 1;
-    }
-
-    85% {
-        transform: translateX(45%) scale(1.02);
-        opacity: 1;
-    }
-
-    100% {
-        transform: translateX(95%) scale(1.05);
-        opacity: 0.2;
-    }
-}
-
-
 
 .floating-hero-img {
-    animation: carDriveVibration 2.4s ease-in-out infinite alternate !important;
-    filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.65)) !important;
+    animation: simpleFloat 4s ease-in-out infinite !important;
+    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.65)) !important;
+    transition: transform 0.3s ease-out;
 }
 
-@keyframes carDriveVibration {
-    0% {
-        transform: translateY(0px) rotate(0deg) scale(1);
-    }
-
-    25% {
-        transform: translateY(-4px) rotate(-0.5deg) scale(1.008);
+@keyframes simpleFloat {
+    0%,
+    100% {
+        transform: translateY(0);
     }
 
     50% {
-        transform: translateY(-1px) rotate(0.3deg) scale(1.002);
-    }
-
-    75% {
-        transform: translateY(-6px) rotate(-0.3deg) scale(1.01);
-    }
-
-    100% {
-        transform: translateY(-2px) rotate(0deg) scale(1);
+        transform: translateY(-12px);
     }
 }
 
 .car-dynamic-shadow {
-    width: 80%;
-    height: 18px;
+    width: 75%;
+    height: 16px;
     background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85) 0%, rgba(16, 185, 129, 0.15) 50%, transparent 80%);
-    margin: -10px auto 0;
+    margin: -8px auto 0;
     border-radius: 50%;
-    animation: shadowPulse 2.4s ease-in-out infinite alternate;
+    animation: simpleShadowPulse 4s ease-in-out infinite;
 }
 
-@keyframes shadowPulse {
-    0% {
+@keyframes simpleShadowPulse {
+    0%,
+    100% {
         transform: scaleX(1);
-        opacity: 0.9;
+        opacity: 0.85;
     }
 
     50% {
-        transform: scaleX(0.92);
-        opacity: 0.7;
-    }
-
-    100% {
-        transform: scaleX(1.05);
-        opacity: 0.95;
+        transform: scaleX(0.82);
+        opacity: 0.55;
     }
 }
 
@@ -3462,7 +3419,7 @@ body.dark-theme .gender-toggle-group .btn-check+.btn {
     }
 }
 
-/* Moving Highway Track Line */
+/* Static Highway Track Line Accent */
 .road-track-container {
     height: 16px;
     background: linear-gradient(180deg, #18181b 0%, #27272a 50%, #18181b 100%);
@@ -3497,7 +3454,7 @@ body.dark-theme .gender-toggle-group .btn-check+.btn {
 }
 
 .road-dashed-line {
-    width: 200%;
+    width: 100%;
     height: 100%;
     background: repeating-linear-gradient(90deg,
             transparent 0px,
@@ -3507,20 +3464,9 @@ body.dark-theme .gender-toggle-group .btn-check+.btn {
             transparent 35px,
             transparent 55px);
     box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
-    animation: moveRoad 0.45s linear infinite;
 }
 
-@keyframes moveRoad {
-    0% {
-        transform: translateX(0);
-    }
-
-    100% {
-        transform: translateX(-55px);
-    }
-}
-
-/* Speed Light Particles Background */
+/* Static Speed Light Particles Background */
 .speed-particles {
     position: absolute;
     top: 0;
@@ -3528,41 +3474,18 @@ body.dark-theme .gender-toggle-group .btn-check+.btn {
     width: 100%;
     height: 100%;
     background-image:
-        radial-gradient(2px 2px at 20px 30px, rgba(52, 211, 153, 0.6), rgba(0, 0, 0, 0)),
-        radial-gradient(2px 2px at 40px 70px, rgba(6, 182, 212, 0.5), rgba(0, 0, 0, 0)),
-        radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.8), rgba(0, 0, 0, 0)),
-        radial-gradient(2px 2px at 160px 120px, rgba(16, 185, 129, 0.7), rgba(0, 0, 0, 0));
+        radial-gradient(2px 2px at 20px 30px, rgba(52, 211, 153, 0.4), rgba(0, 0, 0, 0)),
+        radial-gradient(2px 2px at 40px 70px, rgba(6, 182, 212, 0.3), rgba(0, 0, 0, 0)),
+        radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0)),
+        radial-gradient(2px 2px at 160px 120px, rgba(16, 185, 129, 0.4), rgba(0, 0, 0, 0));
     background-repeat: repeat;
     background-size: 200px 200px;
-    opacity: 0.6;
-    animation: speedParticleScroll 2s linear infinite;
+    opacity: 0.4;
     pointer-events: none;
     z-index: 1;
 }
 
-@keyframes speedParticleScroll {
-    from {
-        background-position: 0 0;
-    }
-
-    to {
-        background-position: -200px 0;
-    }
-}
-
-/* Rotating Alloy Wheels Animation */
 .wheel-spinner {
     transform-box: fill-box;
     transform-origin: center;
-    animation: spinWheel 0.35s linear infinite;
-}
-
-@keyframes spinWheel {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
 }

@@ -55,17 +55,12 @@ $type = isset($_GET['type']) ? mysqli_real_escape_string($conn, $_GET['type']) :
                     <div class="hero-vehicle-glow"></div>
                     <div class="speed-particles"></div>
 
-                    <!-- Driving Car Container Moving Towards Right Side -->
+                    <!-- Hero Vehicle Showcase Display Stage -->
                     <div class="car-stage-road-track position-relative overflow-hidden py-3">
                         <div class="car-drive-wrapper position-relative" id="heroCarDriveWrapper">
                             <img src="uploads/fortuner-suv.png" alt="Toyota Fortuner GR Sport SUV" class="img-fluid floating-hero-img position-relative" style="max-height: 250px; z-index: 3;" onerror="this.onerror=null;this.src='uploads/hero-car.png';">
                             <div class="car-dynamic-shadow"></div>
                             <div class="headlight-beam"></div>
-                        </div>
-
-                        <!-- Moving Highway Road Track Line -->
-                        <div class="road-track-container position-relative mt-2">
-                            <div class="road-dashed-line"></div>
                         </div>
                     </div>
 

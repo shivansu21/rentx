@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         heroStage.addEventListener("mouseleave", function () {
-            heroImg.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+            heroImg.style.transform = "";
         });
     }
 
